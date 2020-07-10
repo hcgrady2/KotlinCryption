@@ -1,12 +1,13 @@
 package com.hc.crypt
 
 import java.io.ByteArrayOutputStream
-import java.security.Key
-import java.security.KeyPairGenerator
-import java.security.PrivateKey
-import java.security.PublicKey
+import java.security.*
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.RSAPublicKeySpec
+import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import javax.crypto.Cipher
+import javax.crypto.spec.SecretKeySpec
 
 object RSACrypt {
 
@@ -205,14 +206,33 @@ fun main(args: Array<String>) {
 
 
     //密钥对生成器
-    val keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    //生成密钥对
-    val keyPair = keyPairGenerator.genKeyPair();
-    val publicKey = keyPair.public
-    val privateKey = keyPair.private
+//    val keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+//    //生成密钥对
+//    val keyPair = keyPairGenerator.genKeyPair();
+//    val publicKey = keyPair.public
+//    val privateKey = keyPair.private
+//
+//    println("public:" + Base64Util.encode(publicKey.encoded))
+//    println("private:" + Base64Util.encode(privateKey.encoded))
+//
 
-    println("public:" + Base64Util.encode(publicKey.encoded))
-    println("private:" + Base64Util.encode(privateKey.encoded))
+
+    //保存密钥对，不要每次都生成
+   val publicKeyStr  = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCRa7yJsaO4mb/xaJZvoWYWUzUiQm2858uk6eyXKOtk1qOeMks5U26nnAn4VaEYuJTUkk+pZSsPMGgwuSvFzytts0GmHybj6bEGQR/ZKJSaMDCwdoH4LBPdBOaES0ZdLyVUpgW/QWhS+hjZA5roS3TNr8fA627Frm60257OXUoWmQIDAQAB"
+    val privateKeyStr  = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJFrvImxo7iZv/Folm+hZhZTNSJCbbzny6Tp7Jco62TWo54ySzlTbqecCfhVoRi4lNSST6llKw8waDC5K8XPK22zQaYfJuPpsQZBH9kolJowMLB2gfgsE90E5oRLRl0vJVSmBb9BaFL6GNkDmuhLdM2vx8DrbsWubrTbns5dShaZAgMBAAECgYASj6rP9HGORWmfeZcCBprOLK6ygcIaA4gVs5n0LU/mXhMiRQ8e8QxFroADR4K5cg3lGAu89mHJnYce+POiWvAS7ZcEH1P5P5UIDsy/k5HNyRG6jQYLkmB4DZ3h20woO2JfL2AYqbDIbKVK0HprgGaN0X9kkaA14NUZkkeXIC070QJBAOIhzv+ajCntmjzbt3xFdjhZ2yQv5L0VoX3LOgdWfYzAanMuaFxGPDNFQvo0gFnDEUx9zqrn2BR/8+MBQlmr1NUCQQCkoNgADdcLIbkU+1BVgWGEHGBkc0sWuxMoqmDoGEjs1aQ3NXmq2Z2qKNV8N8wVvmYs9fe6w9g9FOd9VrexWCy1AkEAh/008toKOJy/CKJJcd6D/ddrxhNXR67eczvoJcmJrz93xNS/xd4nDd41LSqtlU2N9aYixvyuIYXhMT7sm+iOEQJBAKLtfFgxWk3uBho5znuRHE1/N/ayE/JfGsr4NAf/YMzjcy4gglUQIfWxi/bv0c8DLGP62j3AbVWmRqPJGuss9LECQHDsYLWZL1tuQ3Gc+HvDS1yKjV9sqI0G8Ewqq88LWT0vQWbNT8yN/2yWAhvQQNX6Uem3BdkAvChAdxsGIKS1Dsg="
+
+    //字符串转密钥对
+    val kf = KeyFactory.getInstance("RSA")
+    //只能用 Pkcs8 ,并且需要base64 解码
+    val privateKey = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyStr.toByteArray())))
+    // Only RSAPublicKeySpec and X509EncodedKeySpec supported for RSA public keys
+    //
+    val publicKey  = kf.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(publicKeyStr.toByteArray())))
+
+
+
+
+
 
     val input = "这是 rsa 非对称加密原文，这是长度非常长，测试分段加密，这是 rsa 非对称加密原文，这是长度非常长，测试分段加密，这是 rsa 非对称加密原文，这是长度非常长，测试分段加密，这是 rsa 非对称加密原文，这是长度非常长，测试分段加密，"
     val encrypt = RSACrypt.encryptByPublicKey(input, publicKey)
